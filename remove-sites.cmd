@@ -22,7 +22,7 @@ REM  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 REM  THE SOFTWARE.
 
 call usr\config.cmd
-%XAMPP_DIR%\php\php.exe usr\XAMPPMultiSite.php --remove --sites="%~dp0\" --ignore="usr" --vhosts="%XAMPP_DIR%\apache\conf\extra\httpd-vhosts.conf"
+%XAMPP_DIR%\php\php.exe usr\XAMPPMultiSite.php --remove --localhost="%XAMPP_DIR%\htdocs" --sites="%~dp0\" --ignore="usr" --vhosts="%XAMPP_DIR%\apache\conf\extra\httpd-vhosts.conf"
 
 echo.
 echo Press any key to exit...

@@ -27,16 +27,18 @@
 	
 	const LOCALHOST = '127.0.0.1';
 	
-	$options = getopt('', [ 'install', 'remove', 'sites:', 'ignore:', 'vhosts:' ]);
+	$options = getopt('', [ 'install', 'remove', 'localhost:', 'sites:', 'ignore:', 'vhosts:' ]);
 	
 	if((!isset($options['install']) && !isset($options['remove']))
+	   || !isset($options['localhost']) || $options['localhost'] === false
 	   || !isset($options['sites']) || $options['sites'] === false
 	   || !isset($options['vhosts']) || $options['vhosts'] === false) {
 		echo "(Un)registers all directories in a given directory as local websites.\n",
 			 "\n",
-			 "Usage: {$argv[0]} [--install|--remove] --sites [--ignore] --vhosts\n",
+			 "Usage: {$argv[0]} [--install|--remove] --localhost --sites [--ignore] --vhosts\n",
 			 "    --install   Causes the script to register websites.\n",
 			 "    --remove    Causes the script to unregister websites.\n",
+			 "    --localhost Path to localhost root directory in your XAMPP installation.\n",
 			 "    --sites     Path to the directory that contains local websites that are\n",
 			 "                represented by its subdirectories. The contents of a\n",
 			 "                subdirectory is the root of a website and its name is the\n",
@@ -48,6 +50,7 @@
 	}
 	
 	$isInstall = isset($options['install']);
+	$localhostPath = $options['localhost'];
 	
 	$siteDirectoryPaths = getSubdirectories($options['sites'],
 											(!isset($options['ignore']) || $options['ignore'] === false)
@@ -78,6 +81,14 @@
 	}
 	
 	if($isInstall) {
+		try {
+			addVirtualHost($vhostsConfig, 'localhost', $localhostPath, false);
+			echo "Added localhost entry to virtual hosts file.\n";
+		}
+		catch(Exception $e) {
+			echo "Localhost entry already exists in virtual hosts file.\n";
+		}
+		
 		echo "Registering websites:\n";
 		foreach($siteDirectoryPaths as $siteDirectoryPath) {
 			$siteDomain = basename($siteDirectoryPath);
@@ -159,7 +170,7 @@
 	}
 	
 	/** Adds VirtualHost section to the virtual hosts config file. */
-	function addVirtualHost(Config_Container $config, $serverName, $rootPath) {
+	function addVirtualHost(Config_Container $config, $serverName, $rootPath, $describeDirectory = true) {
 		if(_getVirtualHostSection($config, $serverName) !== null)
 			throw new RuntimeException('VirtualHost is already registered!');
 		
@@ -168,10 +179,12 @@
 		$virtualHost->createComment('WARNING: automatically generated section, any modifications will be lost!');
 		$virtualHost->createDirective('ServerName', $serverName);
 		$virtualHost->createDirective('DocumentRoot', '"' . $rootPath . '"');
-		$directory = $virtualHost->createSection('Directory', [ '"' . $rootPath . '"' ]);
-		$directory->createDirective('Options', 'Indexes FollowSymLinks Includes ExecCGI');
-		$directory->createDirective('AllowOverride', 'All');
-		$directory->createDirective('Require', 'all granted');
+		if($describeDirectory) {
+			$directory = $virtualHost->createSection('Directory', [ '"' . $rootPath . '"' ]);
+			$directory->createDirective('Options', 'Indexes FollowSymLinks Includes ExecCGI');
+			$directory->createDirective('AllowOverride', 'All');
+			$directory->createDirective('Require', 'all granted');
+		}
 	}
 	
 	/** Removes VirtualHost section from the virtual hosts config file. */
