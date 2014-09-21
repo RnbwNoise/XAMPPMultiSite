@@ -13,13 +13,13 @@ NOTE: This script is not intended to be used in a production environment. It is 
 4. Restart Apache using XAMPP Control Panel.
 5. Virtual hosts should be up and running. Visit http://example1.local/, http://example2.local/, and http://example3.local/ .
 
-To remove a website and its virtual host:
+### To remove a website and its virtual host:
 1. Run `remove-sites.cmd`. All websites that have a directory will be unregistered.
 2. Remove its folder
 3. Run `install-sites.cmd` to restore other virtual hosts.
 4. Restart Apache.
 
-To add a new website:
+### To add a new website:
 1. Copy its root directory into the folder with `install-sites.cmd`.
 2. Rename it if you want to have a different domain name.
 3. Run `install-sites.cmd` to add a new website.
