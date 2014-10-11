@@ -22,7 +22,7 @@
      * THE SOFTWARE.
      */
     
-    require_once(__DIR__ . '/HostsFile.php');
+    require_once(__DIR__ . '/HostsFile/File.php');
     require_once('Config.php'); // PEAR::Config is already included in XAMPP
     
     const LOCALHOST = '127.0.0.1';
@@ -62,7 +62,7 @@
     
     $hostsFile = null;
     try {
-        $hostsFile = new HostsFile(getenv('windir') . '/system32/drivers/etc/hosts');
+        $hostsFile = new HostsFile\File(getenv('windir') . '/system32/drivers/etc/hosts');
         echo "    Hosts file: done\n";
     }
     catch(Exception $e) {
@@ -86,7 +86,8 @@
             echo "Added localhost entry to virtual hosts file.\n";
         }
         catch(Exception $e) {
-            echo "Localhost entry already exists in virtual hosts file.\n";
+            echo "Localhost entry already exists in virtual hosts file:\n";
+            echo '    ', $e->getMessage(), "\n";
         }
         
         echo "Registering websites:\n";
@@ -115,7 +116,7 @@
         echo "Unregistering websites:\n";
         foreach($siteDirectoryPaths as $siteDirectoryPath) {
             $siteDomain = basename($siteDirectoryPath);
-            echo '    Unegistering ', $siteDomain, ": \n";
+            echo '    Unregistering ', $siteDomain, ": \n";
             
             try {
                 $hostsFile->removeAlias($siteDomain);
